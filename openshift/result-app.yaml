@@ -1,0 +1,161 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: vote-app-result
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: vote-app-result
+    name: vote-app-result
+  spec:
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: 172.30.40.226:5000/keynote/vote-app-result:latest
+      generation: null
+      importPolicy: {}
+      name: latest
+  status:
+    dockerImageRepository: ""
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: vote-app-result
+    name: vote-app-result
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: vote-app-result:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      contextDir: result-app
+      git:
+        uri: https://github.com/vpavlin/vote-app-demo
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: nodejs-010-centos7:latest
+      type: Source
+    triggers:
+    - github:
+        secret: V2T0HmolZm1SzULGUNq6
+      type: GitHub
+    - generic:
+        secret: 46QfQy0eN-XPFIAtPoBm
+      type: Generic
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
+  status:
+    lastVersion: 0
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: vote-app-result
+    name: vote-app-result
+  spec:
+    replicas: 1
+    selector:
+      app: vote-app-result
+      deploymentconfig: vote-app-result
+    strategy:
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/container.vote-app-result.image.entrypoint: '["container-entrypoint","/bin/sh","-c","$STI_SCRIPTS_PATH/usage"]'
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: vote-app-result
+          deploymentconfig: vote-app-result
+      spec:
+        containers:
+        - image: ""
+          imagePullPolicy: Always
+          name: vote-app-result
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: "db"
+                  key: user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "db"
+                  key: password
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - vote-app-result
+        from:
+          kind: ImageStreamTag
+          name: vote-app-result:latest
+          namespace: keynote
+      type: ImageChange
+  status: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: vote-app-result
+    name: vote-app-result
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: vote-app-result
+      deploymentconfig: vote-app-result
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
