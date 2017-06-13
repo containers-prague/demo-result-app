@@ -138,6 +138,15 @@ objects:
                   name: "db"
                   key: password
           resources: {}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 4000
+              scheme: HTTP
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
           terminationMessagePath: /dev/termination-log
         dnsPolicy: ClusterFirst
         restartPolicy: Always
