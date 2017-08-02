@@ -80,7 +80,7 @@ body{
   top: 50%;
   transform: translateY(-50%);
   text-align: center;
-  padding-left: 50px;
+  padding-left: 0 auto;
 }
 
 #choice .choice .label{
