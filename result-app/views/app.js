@@ -5,8 +5,8 @@ var bg1 = document.getElementById('background-stats-1');
 var bg2 = document.getElementById('background-stats-2');
 
 app.controller('statsCtrl', function($scope,$http){
-  $scope.nameA = "OpenShift";
-  $scope.nameB = "Docker Swarm";
+  $scope.nameA = "Ano";
+  $scope.nameB = "Ne";
   var animateStats = function(a,b){
     if(a+b>0){
       var percentA = a/(a+b)*100;
